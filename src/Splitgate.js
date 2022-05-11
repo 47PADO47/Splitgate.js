@@ -67,7 +67,13 @@ class Splitgate {
     };
 
     async getServerStatus() {
-        const data = await this.#fetch(`server-status?encodedCompositePlatformId=eyJ1c2VySWQiOiIiLCJwbGF0Zm9ybSI6IlNURUFNIiwicGxhdGZvcm1JZCI6Ijc2NTYxMTk5MDAzMzI0NDAyIn0=`);
+        const string = JSON.stringify({
+            "userId": "",
+            "platform": "STEAM",
+            "platformId": "76561199003324402"
+        });
+        const encodedString = Buffer.from(string).toString('base64');
+        const data = await this.#fetch(`server-status?encodedCompositePlatformId=${encodedString}`);
         return data ?? {};
     };
 
