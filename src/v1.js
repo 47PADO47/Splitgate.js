@@ -278,6 +278,7 @@ class v1 extends BaseApi {
         const response = await this.fetch(`${this.baseUrl}${url}`, {
             headers: {
                 "Authorization": `Bearer ${this.#token}`,
+                'Content-Type': 'application/json',
                 ...this.headers,
                 ...opts?.headers,
             },

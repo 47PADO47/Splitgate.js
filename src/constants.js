@@ -3,7 +3,6 @@ const urls = {
     2: 'https://splitgate.accelbyte.io/'
 };
 const headers = {
-    'Content-Type': 'application/json',
     "User-Agent": "PortalWars/++PortalWars+Main-CL-1863 Windows/10.0.22000.1.256.64bit",
 };
 
