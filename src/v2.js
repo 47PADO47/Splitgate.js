@@ -13,7 +13,15 @@ class v2 extends BaseApi {
         this.#token = "";
         this.authorized = false;
 
-        this.user = {};
+        this.user = {
+            name: undefined,
+            platform: {
+                id: undefined,
+                userId: undefined,
+            },
+            xuid: undefined,
+            bans: [],
+        };
     };
 
     async login(platformToken = this.#platformToken) {
