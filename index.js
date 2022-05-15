@@ -1,5 +1,8 @@
 'use strict';
 
 module.exports = {
-    Splitgate: require('./src/Splitgate'),
+    Splitgate: {
+        v1: require('./src/v1'),
+        v2: require('./src/v2'),
+    },
 };

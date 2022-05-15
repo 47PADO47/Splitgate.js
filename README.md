@@ -9,12 +9,17 @@ npm install splitgate.js
 ## Example
 ```javascript
     const { Splitgate } = require('splitgate.js');
-    const splitgate = new Splitgate();
+    const v1 = new Splitgate.v1();
+    const v2 = new Splitgate.v2();
 
     (async () => {
-        await splitgate.login('platformAuthToken', 'authToken');
+        await v1.login('platformAuthToken', 'authToken');
+        await v2.login('platformToken');
 
-        const status = await splitgate.getServerStatus();
+        const status = await v1.getServerStatus();
         console.log(`Servers are ${status.isLive ? 'online' : 'offline'}`);
+
+        const pass = await v2.getSeasonPass();
+        console.log(`The season pass will end on ${new Date(pass.end).toLocaleDateString()}`);
     })();
 ```
