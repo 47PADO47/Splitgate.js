@@ -1,6 +1,6 @@
 {
   "name": "splitgate.js",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Api wrapper for the steam game Splitgate",
   "main": "index.js",
   "scripts": {

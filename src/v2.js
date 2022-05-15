@@ -19,6 +19,7 @@ class v2 extends BaseApi {
                 id: undefined,
                 userId: undefined,
             },
+            id: undefined,
             xuid: undefined,
             bans: [],
         };
@@ -53,6 +54,7 @@ class v2 extends BaseApi {
                 id: json.platform_id,
                 userId: json.platform_user_id,
             },
+            id: json.user_id,
             xuid: json.xuid,
             bans: json.bans,
         };
@@ -76,7 +78,7 @@ class v2 extends BaseApi {
     };
 
     async getAccountCosmetics() {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.platform.userId}/customizations/chosen`);
+        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/customizations/chosen`);
         return data ?? {};
     };
 
@@ -91,7 +93,7 @@ class v2 extends BaseApi {
     };
 
     async claimDailyReward() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.platform.id}/dailyCheckIn/status`);
+        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/status`);
         return data ?? {};
     };
 
@@ -113,12 +115,12 @@ class v2 extends BaseApi {
     };
 
     async getReferralData() {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.platform.userId}/referral/info`);
+        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/info`);
         return data ?? {};
     };
 
     async getReferralSeasonData(seasonName = "Season1") {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.platform.userId}/referral/data?seasonName=${seasonName}`);
+        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/data?seasonName=${seasonName}`);
         return data ?? {};
     };
 

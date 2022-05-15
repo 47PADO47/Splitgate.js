@@ -25,6 +25,7 @@ describe('[v2] Splitgate class creation', () => {
                 id: undefined,
                 userId: undefined,
             },
+            id: undefined,
             xuid: undefined,
             bans: [],
         });
