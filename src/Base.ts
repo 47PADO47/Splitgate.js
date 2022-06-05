@@ -1,8 +1,15 @@
-const fetch = require('node-fetch');
-const { urls, headers } = require('./constants');
+import fetch from 'node-fetch';
+import { urls, headers } from './constants';
+import { BaseApiConstructor, IBaseApi } from './typings/Base';
+import { Headers } from './typings/constants';
 
-class BaseApi {
-    constructor(data = {
+class BaseApi implements IBaseApi {
+    debug: boolean;
+    version: number;
+    fetch: Function;
+    baseUrl: string;
+    headers: Headers;
+    constructor(data: BaseApiConstructor = {
         debug: false,
         version: 0,
     }) {
@@ -14,21 +21,18 @@ class BaseApi {
         this.headers = headers;
     };
 
-    error(message) {
+    error(message: string): Promise<never> {
         if (this.debug) this.log(message);
         return Promise.reject(new Error(message));
     };
 
-    log(message) {
+    log(message: string): void {
         console.log(`\x1b[31m[SPLITGATE]\x1b[0m\x1b[36m[v${this.version}]\x1b[0m`, message);
     };
 
-    #fetch() {
-        return this.error("Not implemented");
-    };
-
-    getMethods() {
+    getMethods(): string[] {
         return Object.getOwnPropertyNames(Object.getPrototypeOf(this)).filter(prop => prop !== "constructor");
     };
 };
-module.exports = BaseApi;
+
+export default BaseApi;

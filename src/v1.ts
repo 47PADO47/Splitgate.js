@@ -1,9 +1,18 @@
-const BaseApi = require('./Base');
+import { RequestInit } from "node-fetch";
+import BaseApi from "./Base";
+import { customizationDataV1, Iv1Api, v1ApiConstructor, v1Data } from "./typings/v1";
 
-class v1 extends BaseApi {
-    #token = "";
-    #data = {};
-    constructor(data = {
+class v1 extends BaseApi implements Iv1Api {
+    #token: string = "";
+    public authorized: boolean = false;
+    #data = {
+        platformAuthToken: "",
+        authToken: "",
+        timeDifferenceFromUTC: 0,
+        debug: false
+    } as v1Data;
+    public userId: string = "";
+    constructor(data: v1ApiConstructor = {
         platformAuthToken: "",
         authToken: "",
         timeDifferenceFromUTC: 0,
@@ -117,12 +126,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    /**
-     * 
-     * @param {*} data {"chosenCustomizations":[{"customizationType":"Armor","customizationValue":"0-0"},{"customizationType":"Jetpack","customizationValue":"0-0"},{"customizationType":"PortalGun","customizationValue":"0-0"},{"customizationType":"AssaultRifle","customizationValue":"0-0"},{"customizationType":"BattleRifle","customizationValue":"0-8"},{"customizationType":"DMR","customizationValue":"0-0"},{"customizationType":"Pistol","customizationValue":"0-0"},{"customizationType":"PlasmaRifle","customizationValue":"0-0"},{"customizationType":"Railgun","customizationValue":"0-0"},{"customizationType":"RocketLauncher","customizationValue":"0-0"},{"customizationType":"Shotgun","customizationValue":"0-0"},{"customizationType":"SMG","customizationValue":"0-0"},{"customizationType":"Sniper","customizationValue":"0-65"},{"customizationType":"Portal","customizationValue":"0"},{"customizationType":"Spray","customizationValue":"0"},{"customizationType":"Emote","customizationValue":"0"},{"customizationType":"Oddball","customizationValue":"0-0"},{"customizationType":"Bat","customizationValue":"0-0"},{"customizationType":"NameTag","customizationValue":"0"},{"customizationType":"Banner","customizationValue":"0"}]}
-     * @returns 
-     */
-    async updateChosenCustomizations(data) {
+    async updateChosenCustomizations(data: customizationDataV1) {
         if (!data) return this.error("No data provided");
         const response = await this.#fetch("game-client/update-chosen-customizations", {
             method: "POST",
@@ -136,7 +140,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async redeemDLCKey(key) {
+    async redeemDLCKey(key: string) {
         if (!key) return this.error("No key provided");
         const data = await this.#fetch(`game-client/redeem-dlc-key`, {
             method: "POST",
@@ -147,7 +151,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async acceptInvite(userId, platform = {
+    async acceptInvite(userId: string, platform = {
         name: "STEAM",
         id: "76561199003324402"
     }) {
@@ -178,7 +182,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async inviteUser(userId, platform = {
+    async inviteUser(userId: string, platform = {
         name: "STEAM",
         id: "76561199003324402"
     }) {
@@ -201,7 +205,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async redeemItem(item, value) {
+    async redeemItem(item: string | number, value: string | number) {
         if (!item || !value) return this.error("No data provided");
 
         const data = await this.#fetch("game-client/redeem-item", {
@@ -236,7 +240,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async setFinishRaceCourse(map, timeInMs) {
+    async setFinishRaceCourse(map: string, timeInMs: string) {
         if (!map || !timeInMs) return this.error("No data provided");
 
         const data = await this.#fetch("game-client/finish-race-course", {
@@ -259,7 +263,7 @@ class v1 extends BaseApi {
         return data?.recentlyEncounteredUsers ?? [];
     };
 
-    async friendRequest(userId, encodedCompositePlatformId = "") {
+    async friendRequest(userId: string, encodedCompositePlatformId = "") {
         if (!userId) return this.error("No data provided");
 
         const data = await this.#fetch("game-client/friend-request", {
@@ -272,7 +276,7 @@ class v1 extends BaseApi {
         return data ?? {};
     };
 
-    async #fetch (url, opts) {
+    async #fetch (url: string, opts: RequestInit = {}) {
         if (!this.authorized) return this.error("Not authorized");
 
         const response = await this.fetch(`${this.baseUrl}${url}`, {
@@ -299,4 +303,4 @@ class v1 extends BaseApi {
     };
 };
 
-module.exports = v1;
+export default v1;

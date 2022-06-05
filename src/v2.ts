@@ -1,10 +1,14 @@
-const BaseApi = require('./Base');
+import { RequestInit } from "node-fetch";
+import BaseApi from "./Base";
+import { constructorOptionsV2, Iv2Api, User } from "./typings/v2";
 
-class v2 extends BaseApi {
+class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
     #token = "";
     #refreshToken = "";
-    constructor(data = {
+    authorized: boolean;
+    user: User;
+    constructor(data: constructorOptionsV2 = {
         platformToken: "",
         debug: false,
     }) {
@@ -104,7 +108,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async getUserProfiles(userIds = [""]) {
+    async getUserProfiles(userIds = [this.user.id]) {
         const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/users/bulk/basic`, {
             body: JSON.stringify({userIds}),
             method: "POST",
@@ -112,7 +116,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async getUserProfilesSteam(platformUserIds = [""]) {
+    async getUserProfilesSteam(platformUserIds = [this.user.id]) {
         const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/platforms/steam/users`, {
             body: JSON.stringify({platformUserIds}),
             method: "POST",
@@ -140,7 +144,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async getPublicProfiles(userIds = [""]) {
+    async getPublicProfiles(userIds = [this.user.id]) {
         const data = await this.#fetch(`basic/v1/public/namespaces/splitgate/profiles/public?userIds=${userIds.join(",")}`);
         return data ?? {};
     };
@@ -215,7 +219,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async SyncSteamDlc(userId = this.user.id, steamId = "", appId = "677620") {
+    async SyncSteamDlc(steamId = "", userId = this.user.id, appId = "677620") {
         const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/dlc/steam/sync`, {
             body: JSON.stringify({steamId, appId}),
             method: "PUT"
@@ -223,7 +227,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async SyncSteamIap(userId = this.user.id, steamId = "", appId = "677620") {
+    async SyncSteamIap(steamId = "", userId = this.user.id, appId = "677620") {
         const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/iap/steam/sync`, {
             body: JSON.stringify({steamId, appId}),
             method: "PUT"
@@ -267,7 +271,10 @@ class v2 extends BaseApi {
     };
 
     async claimDailyReward() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyreward/claim`);
+        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/claim`,
+        {
+            method: "POST"
+        });
         return data ?? {};
     };
 
@@ -304,7 +311,7 @@ class v2 extends BaseApi {
         return data ?? {};
     };
 
-    async #fetch(url, options = {}) {
+    async #fetch(url: string, options: RequestInit = {}) {
         if (!this.authorized) return this.error("Not authorized");
         
         const response = await this.fetch(`${this.baseUrl}${url}`, {
@@ -312,7 +319,8 @@ class v2 extends BaseApi {
                 "Authorization": `Bearer ${this.#token}`,
                 ...this.headers,
                 ...options?.headers,
-            }
+            },
+            ...options
         });
 
         if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
@@ -328,4 +336,4 @@ class v2 extends BaseApi {
     };
 };
 
-module.exports = v2
+export default v2

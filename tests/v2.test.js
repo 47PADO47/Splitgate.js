@@ -1,4 +1,4 @@
-const { v2 } = require('../index.js').Splitgate;
+const { v2 } = require('../dist/index.js');
 let splitgate;
 
 beforeEach(() =>{

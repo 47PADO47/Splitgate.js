@@ -8,7 +8,7 @@ npm install splitgate.js
 
 ## Example
 ```javascript
-    const { Splitgate } = require('splitgate.js');
+    const Splitgate = require('splitgate.js');
     const v1 = new Splitgate.v1();
     const v2 = new Splitgate.v2();
 
