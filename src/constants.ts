@@ -5,9 +5,9 @@ const urls = Object.freeze({
     2: 'https://splitgate.accelbyte.io/'
 }) as Urls;
 
-const headers = Object.freeze({
+const headers = {
     "User-Agent": "PortalWars/++PortalWars+Main-CL-1863 Windows/10.0.22000.1.256.64bit",
-}) as Headers;
+} as Headers;
 
 export {
     urls,

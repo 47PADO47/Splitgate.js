@@ -1,4 +1,4 @@
-import { RequestInit } from "node-fetch";
+import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./Base";
 import { constructorOptionsV2, Iv2Api, User } from "./typings/v2";
 
@@ -120,6 +120,10 @@ class v2 extends BaseApi implements Iv2Api {
         const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/platforms/steam/users`, {
             body: JSON.stringify({platformUserIds}),
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
         });
         return data ?? {};
     };
@@ -314,14 +318,19 @@ class v2 extends BaseApi implements Iv2Api {
     async #fetch(url: string, options: RequestInit = {}) {
         if (!this.authorized) return this.error("Not authorized");
         
-        const response = await this.fetch(`${this.baseUrl}${url}`, {
-            headers: {
-                "Authorization": `Bearer ${this.#token}`,
-                ...this.headers,
-                ...options?.headers,
-            },
-            ...options
-        });
+        const headers: HeadersInit = {
+            'Authorization': `Bearer ${this.#token}`,
+            ...this.headers,
+            ...options.headers ?? {}
+        }
+        const opts: RequestInit = {
+            method: options?.method ?? "GET",
+            headers: headers,
+        };
+        if (opts.method !== 'GET' && options?.body)
+        opts.body = options.body;
+
+        const response = await this.fetch(`${this.baseUrl}${url}`, opts);
 
         if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
 
@@ -329,7 +338,7 @@ class v2 extends BaseApi implements Iv2Api {
         .catch(() => {
             return this.error("Failed to parse JSON");
         });
-        
+
         if (json.error) return this.error(json.error_description);
 
         return json;

@@ -2,9 +2,9 @@ type Urls = Readonly<{
     [key: number]: string;
 }>;
 
-type Headers = Readonly<{
+type Headers = {
     [key: string]: string;
-}>;
+};
 
 export {
     Urls,
