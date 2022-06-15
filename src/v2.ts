@@ -31,7 +31,7 @@ class v2 extends BaseApi implements Iv2Api {
         };
     };
 
-    async login(platformToken = this.#platformToken) {
+    async login(platformToken = this.#platformToken): Promise<User> {
         if (this.authorized) return this.error("Already authorized");
         if (!platformToken) return this.error("No platform token provided");
 
@@ -42,7 +42,7 @@ class v2 extends BaseApi implements Iv2Api {
                 "Authorization": `Basic MzZkOGEzN2JmZTlhNDEyYWJiMGIzMTc0OTM0NTg5YjU6`,
                 ...this.headers,
             },
-            body: this.#refreshToken ? `grant_type=refresh_token&refresh_token=${this.#refreshToken}` : `platform_token=${platformToken}`,
+            body: `platform_token=${platformToken}`,
         });
         if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
         
@@ -68,10 +68,10 @@ class v2 extends BaseApi implements Iv2Api {
         };
         this.authorized = true;
 
-        setTimeout(() => {
+        setInterval(() => {
             this.authorized = false;
-            this.login(this.#platformToken);
-        }, json.expires_in*60*1000);
+            this.#refresh(this.#refreshToken);
+        }, json.expires_in*1000);
         return this.user;
     };
 
@@ -199,7 +199,7 @@ class v2 extends BaseApi implements Iv2Api {
     };
 
     async getItems(itemIds=[""]) {
-        const data = await this.#fetch(`/platform/public/namespaces/splitgate/items/locale/byIds?itemIds=${itemIds.join(",")}`);
+        const data = await this.#fetch(`platform/public/namespaces/splitgate/items/locale/byIds?itemIds=${itemIds.join(",")}`);
         return data ?? {};
     };
 
@@ -250,7 +250,7 @@ class v2 extends BaseApi implements Iv2Api {
     };
 
     async getCurrentSeasonUserData(userId = this.user.id) {
-        const data = await this.#fetch(`/seasonpass/public/namespaces/splitgate/users/${userId}/seasons/current/data`);
+        const data = await this.#fetch(`seasonpass/public/namespaces/splitgate/users/${userId}/seasons/current/data`);
         return data ?? {};
     };
 
@@ -315,6 +315,16 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
+    async getRecentPlayers(userId = this.user.id, limit: number = 50, offset: number = 0) {
+        const data = await this.#fetch(`sessionmanager/namespaces/splitgate/recentplayer/${userId}?limit=${limit}&offset=${offset}`);
+        return data ?? {};
+    };
+
+    async getUsersPresence(userIds = [this.user.id], countOnly: boolean = false) {
+        const data = await this.#fetch(`lobby/v1/public/presence/namespaces/splitgate/users/presence?userIds=${userIds.join(",")}&countOnly=${countOnly}`);
+        return data ?? {};
+    };
+
     async #fetch(url: string, options: RequestInit = {}) {
         if (!this.authorized) return this.error("Not authorized");
         
@@ -343,6 +353,32 @@ class v2 extends BaseApi implements Iv2Api {
 
         return json;
     };
+
+    async #refresh(refreshToken = this.#refreshToken) {
+        if (!this.authorized) return this.error("Not authorized");
+        if (!refreshToken) return this.error("No refresh token provided");
+
+        const response = await this.fetch(`${this.baseUrl}iam/v3/oauth/token`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": `Basic MzZkOGEzN2JmZTlhNDEyYWJiMGIzMTc0OTM0NTg5YjU6`,
+                ...this.headers,
+            },
+            body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+        });
+        if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
+        
+        const json = await response.json()
+        .catch(() => {
+            return this.error("Failed to parse JSON");
+        });
+        
+        if (json.error) return this.error(json.error_description);
+        this.#token = json.access_token;
+        this.#refreshToken = json.refresh_token;
+        this.authorized = true;
+    };
 };
 
-export default v2
+export default v2;
