@@ -22,12 +22,12 @@ class BaseApi implements IBaseApi {
     };
 
     error(message: string): Promise<never> {
-        if (this.debug) this.log(message);
+        this.log(message);
         return Promise.reject(new Error(message));
     };
 
     log(message: string): void {
-        console.log(`\x1b[31m[SPLITGATE]\x1b[0m\x1b[36m[v${this.version}]\x1b[0m`, message);
+        if (this.debug) console.log(`\x1b[31m[SPLITGATE]\x1b[0m\x1b[36m[v${this.version}]\x1b[0m`, message);
     };
 
     getMethods(): string[] {

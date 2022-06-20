@@ -1,6 +1,6 @@
 import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./Base";
-import { constructorOptionsV2, Iv2Api, User } from "./typings/v2";
+import { constructorOptionsV2, drops, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
@@ -35,6 +35,7 @@ class v2 extends BaseApi implements Iv2Api {
         if (this.authorized) return this.error("Already authorized");
         if (!platformToken) return this.error("No platform token provided");
 
+        this.log('Logging in...');
         const response = await this.fetch(`${this.baseUrl}iam/v3/oauth/platforms/steam/token`, {
             method: "POST",
             headers: {
@@ -67,19 +68,25 @@ class v2 extends BaseApi implements Iv2Api {
             bans: json.bans,
         };
         this.authorized = true;
-
+        
+        this.log('Logged in');
         setInterval(() => {
             this.authorized = false;
             this.#refresh(this.#refreshToken);
         }, json.expires_in*1000);
+        
         return this.user;
     };
 
     async logout() {
+        this.log('Logging out...');
+        
         this.#token = "";
         this.authorized = false;
         this.user = {};
         this.#platformToken = "";
+        
+        this.log('Logged out');
         return this.authorized;
     };
 
@@ -88,9 +95,9 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getLobbyMessages() {
-        const data = await this.#fetch(`lobby/v1/messages`);
-        return data ?? {};
+    async getLobbyMessages(): Promise<lobbyMessage[]> {
+        const data: lobbyMessage[] = await this.#fetch(`lobby/v1/messages`);
+        return data ?? [];
     };
 
     async getPlaylists() {
@@ -103,8 +110,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? [];
     };
 
-    async getProfile() {
-        const data = await this.#fetch(`basic/v1/public/namespaces/splitgate/users/me/profiles`);
+    async getProfile(): Promise<Profile> {
+        const data: Profile = await this.#fetch(`basic/v1/public/namespaces/splitgate/users/me/profiles`);
         return data ?? {};
     };
 
@@ -112,6 +119,10 @@ class v2 extends BaseApi implements Iv2Api {
         const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/users/bulk/basic`, {
             body: JSON.stringify({userIds}),
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
         });
         return data ?? {};
     };
@@ -128,13 +139,13 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getReferralData() {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/info`);
+    async getReferralData(): Promise<referralData> {
+        const data: referralData = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/info`);
         return data ?? {};
     };
 
-    async getReferralSeasonData(seasonName = "Season2") {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/data?seasonName=${seasonName}`);
+    async getReferralSeasonData(seasonName = "Season2"): Promise<referralSeasonData> {
+        const data: referralSeasonData = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/data?seasonName=${seasonName}`);
         return data ?? {};
     };
 
@@ -143,23 +154,23 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getSeasonReward() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/seasonreward`);
+    async getSeasonReward(): Promise<seasonReward> {
+        const data: seasonReward = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/seasonreward`);
         return data ?? {};
     };
 
-    async getPublicProfiles(userIds = [this.user.id]) {
-        const data = await this.#fetch(`basic/v1/public/namespaces/splitgate/profiles/public?userIds=${userIds.join(",")}`);
+    async getPublicProfiles(userIds = [this.user.id]): Promise<publicProfile[]> {
+        const data: publicProfile[] = await this.#fetch(`basic/v1/public/namespaces/splitgate/profiles/public?userIds=${userIds.join(",")}`);
+        return data ?? [];
+    };
+
+    async getStreamStatus(): Promise<streamStatus> {
+        const data: streamStatus = await this.#fetch(`basic/public/namespaces/splitgate/streamStatus`);
         return data ?? {};
     };
 
-    async getStreamStatus() {
-        const data = await this.#fetch(`basic/public/namespaces/splitgate/streamStatus`);
-        return data ?? {};
-    };
-
-    async getServers() {
-        const data = await this.#fetch(`qosm/public/qos`);
+    async getServers(): Promise<servers> {
+        const data: servers = await this.#fetch(`qosm/public/qos`);
         return data ?? {};  
     };
 
@@ -179,7 +190,7 @@ class v2 extends BaseApi implements Iv2Api {
     };
 
     async getCurrentSeasonName() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/seasons/current/name`);
+        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/seasons/current/name`, undefined, false);
         return data ?? {};
     };
 
@@ -208,8 +219,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getRaceTimes(userId = this.user.id, platform = "STEAM") {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${userId}/race?platform=${platform.toUpperCase()}`);
+    async getRaceTimes(userId = this.user.id, platform = "STEAM"): Promise<raceTimes> {
+        const data: raceTimes = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${userId}/race?platform=${platform.toUpperCase()}`);
         return data ?? {};
     };
 
@@ -244,8 +255,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getDrops(userId = this.user.id) {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/drops`);
+    async getDrops(userId = this.user.id): Promise<drops> {
+        const data: drops = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/drops`);
         return data ?? {};
     };
 
@@ -254,8 +265,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getLegacyProgression(userId = this.user.id) {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${userId}/progression/legacy`);
+    async getLegacyProgression(userId = this.user.id): Promise<legacyProgression> {
+        const data: legacyProgression = await this.#fetch(`social/public/namespaces/splitgate/users/${userId}/progression/legacy`);
         return data ?? {};
     };
 
@@ -274,8 +285,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async claimDailyReward() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/claim`,
+    async claimDailyReward(): Promise<redeemDaily> {
+        const data: redeemDaily = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/claim`,
         {
             method: "POST"
         });
@@ -325,13 +336,20 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async #fetch(url: string, options: RequestInit = {}) {
+    async openDrop() {
+        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/drops/open`, {
+            method: "POST"
+        });
+        return data ?? {};
+    };
+
+    async #fetch(url: string, options: RequestInit = {}, json: boolean = true): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
         
         const headers: HeadersInit = {
             'Authorization': `Bearer ${this.#token}`,
             ...this.headers,
-            ...options.headers ?? {}
+            ...options?.headers ?? {}
         }
         const opts: RequestInit = {
             method: options?.method ?? "GET",
@@ -341,23 +359,28 @@ class v2 extends BaseApi implements Iv2Api {
         opts.body = options.body;
 
         const response = await this.fetch(`${this.baseUrl}${url}`, opts);
+        this.log(`#fetch: ${opts.method} ${url}`);
 
-        if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
+        if (!response.ok && response.status !== 400) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
 
-        const json = await response.json()
-        .catch(() => {
+        const data = json ? await response.json().catch(() => {
             return this.error("Failed to parse JSON");
+        }) : await response.text().catch(() => {
+            return this.error("Failed to parse Text");
         });
 
-        if (json.error) return this.error(json.error_description);
-
-        return json;
+        if (!json) return data;
+        if (data.errorCode) return this.error(data.errorMessage);
+        
+        this.log(`#fetch: returned`);
+        return data;
     };
 
     async #refresh(refreshToken = this.#refreshToken) {
-        if (!this.authorized) return this.error("Not authorized");
+        if (!this.#platformToken) return this.error("User has not previously logged in");
         if (!refreshToken) return this.error("No refresh token provided");
-
+        
+        this.log(`Refreshing token...`);
         const response = await this.fetch(`${this.baseUrl}iam/v3/oauth/token`, {
             method: "POST",
             headers: {
@@ -378,6 +401,9 @@ class v2 extends BaseApi implements Iv2Api {
         this.#token = json.access_token;
         this.#refreshToken = json.refresh_token;
         this.authorized = true;
+
+        this.log(`Token refreshed`);
+        return this.#token;
     };
 };
 
