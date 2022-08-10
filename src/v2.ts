@@ -296,7 +296,10 @@ class v2 extends BaseApi implements Iv2Api {
     async redeemCode(code = "", region = "US", lang = "en") {
         const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/fulfillment/code`, {
             body: JSON.stringify({code, region, lang}),
-            method: "POST"
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
         });
         return data ?? {};
     };
