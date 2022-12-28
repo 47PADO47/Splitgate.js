@@ -1,3 +1,4 @@
+import { RequestInit } from "node-fetch";
 import { Headers } from "./constants";
 
 interface IBaseApi {
@@ -13,7 +14,13 @@ type BaseApiConstructor = {
     version: number;
 }
 
+type BaseFetchOptions = {
+    options?: RequestInit;
+    json?: boolean;
+}
+
 export {
     IBaseApi,
     BaseApiConstructor,
+    BaseFetchOptions,
 }
