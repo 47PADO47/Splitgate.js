@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { urls, headers } from './constants';
-import { BaseApiConstructor, IBaseApi } from './typings/Base';
-import { Headers } from './typings/constants';
+import { BaseApiConstructor, IBaseApi } from '../typings/Base';
+import { Headers } from '../typings/constants';
 
 class BaseApi implements IBaseApi {
     debug: boolean;
