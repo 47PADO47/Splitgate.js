@@ -1,5 +1,5 @@
 import { HeadersInit, RequestInit } from "node-fetch";
-import BaseApi from "./Base";
+import BaseApi from "./core/Base";
 import { constructorOptionsV2, drops, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {

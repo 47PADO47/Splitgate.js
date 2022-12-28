@@ -1,5 +1,5 @@
 import { RequestInit } from "node-fetch";
-import BaseApi from "./Base";
+import BaseApi from "./core/Base";
 import { customizationDataV1, Iv1Api, v1ApiConstructor, v1Data } from "./typings/v1";
 
 class v1 extends BaseApi implements Iv1Api {
