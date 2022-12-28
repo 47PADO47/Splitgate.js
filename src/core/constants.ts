@@ -1,4 +1,4 @@
-import { Headers, Urls } from "./typings/constants";
+import { Headers, Urls } from "../typings/constants";
 
 const urls = Object.freeze({
     1: 'https://api.splitgate.com/',
