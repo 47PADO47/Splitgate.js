@@ -1,6 +1,6 @@
 import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./core/Base";
-import { constructorOptionsV2, drops, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
+import { constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
@@ -91,262 +91,279 @@ class v2 extends BaseApi implements Iv2Api {
     };
 
     async getCosmetics(userId = this.user.id) {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/customizations/chosen`);
+        const data = await this.#fetch({ path: `platform/public/namespaces/splitgate/users/${userId}/customizations/chosen` });
         return data ?? {};
     };
 
     async getLobbyMessages(): Promise<lobbyMessage[]> {
-        const data: lobbyMessage[] = await this.#fetch(`lobby/v1/messages`);
+        const data: lobbyMessage[] = await this.#fetch({ path: `lobby/v1/messages` });
         return data ?? [];
     };
 
     async getPlaylists() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/playlist/config`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/playlist/config` });
         return data ?? [];
     };
 
     async getBlocks() {
-        const data = await this.#fetch(`lobby/v1/public/player/namespaces/splitgate/users/me/blocked`);
+        const data = await this.#fetch({ path: `lobby/v1/public/player/namespaces/splitgate/users/me/blocked` });
         return data ?? [];
     };
 
     async getProfile(): Promise<Profile> {
-        const data: Profile = await this.#fetch(`basic/v1/public/namespaces/splitgate/users/me/profiles`);
+        const data: Profile = await this.#fetch({ path: `basic/v1/public/namespaces/splitgate/users/me/profiles` });
         return data ?? {};
     };
 
     async getUserProfiles(userIds = [this.user.id]) {
-        const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/users/bulk/basic`, {
-            body: JSON.stringify({userIds}),
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        });
+        const data = await this.#fetch({
+                path: `iam/v3/public/namespaces/splitgate/users/bulk/basic`, options: {
+                    body: JSON.stringify({ userIds }),
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                }
+            });
         return data ?? {};
     };
 
     async getUserProfilesSteam(platformUserIds = [this.user.id]) {
-        const data = await this.#fetch(`iam/v3/public/namespaces/splitgate/platforms/steam/users`, {
-            body: JSON.stringify({platformUserIds}),
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        });
+        const data = await this.#fetch({
+                path: `iam/v3/public/namespaces/splitgate/platforms/steam/users`, options: {
+                    body: JSON.stringify({ platformUserIds }),
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                }
+            });
         return data ?? {};
     };
 
     async getReferralData(): Promise<referralData> {
-        const data: referralData = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/info`);
+        const data: referralData = await this.#fetch({ path: `social/public/namespaces/splitgate/users/${this.user.id}/referral/info` });
         return data ?? {};
     };
 
     async getReferralSeasonData(seasonName = "Season2"): Promise<referralSeasonData> {
-        const data: referralSeasonData = await this.#fetch(`social/public/namespaces/splitgate/users/${this.user.id}/referral/data?seasonName=${seasonName}`);
+        const data: referralSeasonData = await this.#fetch({ path: `social/public/namespaces/splitgate/users/${this.user.id}/referral/data?seasonName=${seasonName}` });
         return data ?? {};
     };
 
     async getSeasonPass(lang = "en") {
-        const data = await this.#fetch(`seasonpass/public/namespaces/splitgate/seasons/current?language=${lang}`);
+        const data = await this.#fetch({ path: `seasonpass/public/namespaces/splitgate/seasons/current?language=${lang}` });
         return data ?? {};
     };
 
     async getSeasonReward(): Promise<seasonReward> {
-        const data: seasonReward = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/seasonreward`);
+        const data: seasonReward = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/users/${this.user.id}/seasonreward` });
         return data ?? {};
     };
 
     async getPublicProfiles(userIds = [this.user.id]): Promise<publicProfile[]> {
-        const data: publicProfile[] = await this.#fetch(`basic/v1/public/namespaces/splitgate/profiles/public?userIds=${userIds.join(",")}`);
+        const data: publicProfile[] = await this.#fetch({ path: `basic/v1/public/namespaces/splitgate/profiles/public?userIds=${userIds.join(",")}` });
         return data ?? [];
     };
 
     async getStreamStatus(): Promise<streamStatus> {
-        const data: streamStatus = await this.#fetch(`basic/public/namespaces/splitgate/streamStatus`);
+        const data: streamStatus = await this.#fetch({ path: `basic/public/namespaces/splitgate/streamStatus` });
         return data ?? {};
     };
 
     async getServers(): Promise<servers> {
-        const data: servers = await this.#fetch(`qosm/public/qos`);
+        const data: servers = await this.#fetch({ path: `qosm/public/qos` });
         return data ?? {};  
     };
 
     async getFeedStatus() {
-        const data = await this.#fetch(`basic/public/namespaces/splitgate/feedStatus`);
+        const data = await this.#fetch({ path: `basic/public/namespaces/splitgate/feedStatus` });
         return data ?? {};
     };
 
     async getChallenges() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/challenges`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/challenges` });
         return data ?? {};
     };
 
     async getChallengesState() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/challenges/state`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/challenges/state` });
         return data ?? {};
     };
 
     async getCurrentSeasonName() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/seasons/current/name`, undefined, false);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/seasons/current/name`, options: undefined, json: false });
         return data ?? {};
     };
 
     async getPlacementGamesNeeded() {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/stats/users/placementGamesNeeded`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/stats/users/placementGamesNeeded` });
         return data ?? {};
     };
 
     async getViews() {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/views`);
+        const data = await this.#fetch({ path: `platform/public/namespaces/splitgate/views` });
         return data ?? {};
     };
 
     async getViewSections(viewId = "") {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/views/${viewId}/sections`);
+        const data = await this.#fetch({ path: `platform/public/namespaces/splitgate/views/${viewId}/sections` });
         return data ?? {};
     };
 
     async getItems(itemIds=[""]) {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/items/locale/byIds?itemIds=${itemIds.join(",")}`);
+        const data = await this.#fetch({ path: `platform/public/namespaces/splitgate/items/locale/byIds?itemIds=${itemIds.join(",")}` });
         return data ?? {};
     };
 
     async getStats(userIds = [this.user.id]) {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/stats/users/account?userIds=${userIds.join(",")}`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/stats/users/account?userIds=${userIds.join(",")}` });
         return data ?? {};
     };
 
     async getRaceTimes(userId = this.user.id, platform = "STEAM"): Promise<raceTimes> {
-        const data: raceTimes = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${userId}/race?platform=${platform.toUpperCase()}`);
+        const data: raceTimes = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/users/${userId}/race?platform=${platform.toUpperCase()}` });
         return data ?? {};
     };
 
     async getDailyPlayStreak(userId = this.user.id) {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${userId}/dailyPlayStreak`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/users/${userId}/dailyPlayStreak` });
         return data ?? {};
     };
 
     async getDailyCheckInStatus(userId = this.user.id) {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${userId}/dailyCheckIn/status`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/users/${userId}/dailyCheckIn/status` });
         return data ?? {};
     };
 
     async SyncSteamDlc(steamId = "", userId = this.user.id, appId = "677620") {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/dlc/steam/sync`, {
-            body: JSON.stringify({steamId, appId}),
-            method: "PUT"
-        });
+        const data = await this.#fetch({
+                path: `platform/public/namespaces/splitgate/users/${userId}/dlc/steam/sync`, options: {
+                    body: JSON.stringify({ steamId, appId }),
+                    method: "PUT"
+                }
+            });
         return data ?? {};
     };
 
     async SyncSteamIap(steamId = "", userId = this.user.id, appId = "677620") {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/iap/steam/sync`, {
-            body: JSON.stringify({steamId, appId}),
-            method: "PUT"
-        });
+        const data = await this.#fetch({
+                path: `platform/public/namespaces/splitgate/users/${userId}/iap/steam/sync`, options: {
+                    body: JSON.stringify({ steamId, appId }),
+                    method: "PUT"
+                }
+            });
         return data ?? {};
     };
 
     async getBadges(userIds = [this.user.id]) {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/badges/users?userIds=${userIds.join(",")}`);
+        const data = await this.#fetch({ path: `splitgate/public/namespaces/splitgate/badges/users?userIds=${userIds.join(",")}` });
         return data ?? {};
     };
 
     async getDrops(userId = this.user.id): Promise<drops> {
-        const data: drops = await this.#fetch(`platform/public/namespaces/splitgate/users/${userId}/drops`);
+        const data: drops = await this.#fetch({ path: `platform/public/namespaces/splitgate/users/${userId}/drops` });
         return data ?? {};
     };
 
     async getCurrentSeasonUserData(userId = this.user.id) {
-        const data = await this.#fetch(`seasonpass/public/namespaces/splitgate/users/${userId}/seasons/current/data`);
+        const data = await this.#fetch({ path: `seasonpass/public/namespaces/splitgate/users/${userId}/seasons/current/data` });
         return data ?? {};
     };
 
     async getLegacyProgression(userId = this.user.id): Promise<legacyProgression> {
-        const data: legacyProgression = await this.#fetch(`social/public/namespaces/splitgate/users/${userId}/progression/legacy`);
+        const data: legacyProgression = await this.#fetch({ path: `social/public/namespaces/splitgate/users/${userId}/progression/legacy` });
         return data ?? {};
     };
 
     async getProgression(userId = this.user.id) {
-        const data = await this.#fetch(`social/public/namespaces/splitgate/users/${userId}/progression`);
+        const data = await this.#fetch({ path: `social/public/namespaces/splitgate/users/${userId}/progression` });
         return data ?? {};
     };
 
     async getWallet() {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/wallets/SC`);
+        const data = await this.#fetch({ path: `platform/public/namespaces/splitgate/users/${this.user.id}/wallets/SC` });
         return data ?? {};
     };
 
     async getParty(partyId = "") {
-        const data = await this.#fetch(`lobby/v1/public/party/namespaces/splitgate/parties/${partyId}`);
+        const data = await this.#fetch({ path: `lobby/v1/public/party/namespaces/splitgate/parties/${partyId}` });
         return data ?? {};
     };
 
     async claimDailyReward(): Promise<redeemDaily> {
-        const data: redeemDaily = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/claim`,
-        {
-            method: "POST"
-        });
+        const data: redeemDaily = await this.#fetch({
+                path: `splitgate/public/namespaces/splitgate/users/${this.user.id}/dailyCheckIn/claim`, options: {
+                    method: "POST"
+                }
+            });
         return data ?? {};
     };
 
     async redeemCode(code = "", region = "US", lang = "en") {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/fulfillment/code`, {
-            body: JSON.stringify({code, region, lang}),
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        });
+        const data = await this.#fetch({
+                path: `platform/public/namespaces/splitgate/users/${this.user.id}/fulfillment/code`, options: {
+                    body: JSON.stringify({ code, region, lang }),
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                }
+            });
         return data ?? {};
     };
 
     async getMatch(matchId = "") {
-        const data = await this.#fetch(`sessionmanager/namespaces/splitgate/matchsession/${matchId}`);
+        const data = await this.#fetch({ path: `sessionmanager/namespaces/splitgate/matchsession/${matchId}` });
         return data ?? {};
     };
 
     async rejectMatch(matchId = "", ticket = "") {
-        const data = await this.#fetch(`sessionmanager/namespaces/splitgate/gamesession/${matchId}/ticket/${ticket}/reject-match`, {
-            method: "DELETE"
-        });
+        const data = await this.#fetch({
+                path: `sessionmanager/namespaces/splitgate/gamesession/${matchId}/ticket/${ticket}/reject-match`, options: {
+                    method: "DELETE"
+                }
+            });
         return data ?? {};
     };
 
     async getUserSessions(userId = this.user.id) {
-        const data = await this.#fetch(`sessionmanager/namespaces/splitgate/users/${userId}/sessions`);
+        const data = await this.#fetch({ path: `sessionmanager/namespaces/splitgate/users/${userId}/sessions` });
         return data ?? {};
     };
 
     async claimChallengeReward(challengeId = "", challengeType = "") {
-        const data = await this.#fetch(`splitgate/public/namespaces/splitgate/users/${this.user.id}/challenges/claim-reward`, {
-            body: JSON.stringify({challengeType, challengeId}),
-            method: "POST"
-        });
+        const data = await this.#fetch({
+                path: `splitgate/public/namespaces/splitgate/users/${this.user.id}/challenges/claim-reward`, options: {
+                    body: JSON.stringify({ challengeType, challengeId }),
+                    method: "POST"
+                }
+            });
         return data ?? {};
     };
 
     async getRecentPlayers(userId = this.user.id, limit: number = 50, offset: number = 0) {
-        const data = await this.#fetch(`sessionmanager/namespaces/splitgate/recentplayer/${userId}?limit=${limit}&offset=${offset}`);
+        const data = await this.#fetch({ path: `sessionmanager/namespaces/splitgate/recentplayer/${userId}?limit=${limit}&offset=${offset}` });
         return data ?? {};
     };
 
     async getUsersPresence(userIds = [this.user.id], countOnly: boolean = false) {
-        const data = await this.#fetch(`lobby/v1/public/presence/namespaces/splitgate/users/presence?userIds=${userIds.join(",")}&countOnly=${countOnly}`);
+        const data = await this.#fetch({ path: `lobby/v1/public/presence/namespaces/splitgate/users/presence?userIds=${userIds.join(",")}&countOnly=${countOnly}` });
         return data ?? {};
     };
 
     async openDrop() {
-        const data = await this.#fetch(`platform/public/namespaces/splitgate/users/${this.user.id}/drops/open`, {
-            method: "POST"
-        });
+        const data = await this.#fetch({
+                path: `platform/public/namespaces/splitgate/users/${this.user.id}/drops/open`, options: {
+                    method: "POST"
+                }
+            });
         return data ?? {};
     };
 
-    async #fetch(url: string, options: RequestInit = {}, json: boolean = true): Promise<any> {
+    async #fetch({ path, base, options = {}, json = true }: fetchOptionsV2): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
         
         const headers: HeadersInit = {
@@ -360,6 +377,7 @@ class v2 extends BaseApi implements Iv2Api {
         };
         if (opts.method !== 'GET' && options?.body)
         opts.body = options.body;
+        const url = base ? `${base}/namespaces/splitgate/${path}` : path;
 
         const response = await this.fetch(`${this.baseUrl}${url}`, opts);
         this.log(`#fetch: ${opts.method} ${url}`);
