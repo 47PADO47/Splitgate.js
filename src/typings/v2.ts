@@ -1,3 +1,5 @@
+import { BaseFetchOptions } from "./Base";
+
 interface Iv2Api {
     authorized: boolean;
     user: User;
@@ -7,6 +9,11 @@ interface Iv2Api {
 type constructorOptionsV2 = {
     platformToken: string;
     debug: boolean;
+};
+
+type fetchOptionsV2 = BaseFetchOptions & {
+    base?: string;
+    path: string;
 };
 
 type User = {
@@ -167,6 +174,7 @@ interface drops {
 export {
     Iv2Api,
     constructorOptionsV2,
+    fetchOptionsV2,
     User,
 
     redeemDaily,
