@@ -16,6 +16,11 @@ type fetchOptionsV2 = BaseFetchOptions & {
     path: string;
 };
 
+type authorizationOptions = {
+    token: string;
+    type: 'refresh' | 'platform';
+};
+
 type User = {
     name?: string | undefined;
     platform?: {
@@ -175,6 +180,7 @@ export {
     Iv2Api,
     constructorOptionsV2,
     fetchOptionsV2,
+    authorizationOptions,
     User,
 
     redeemDaily,
