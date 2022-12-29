@@ -354,6 +354,13 @@ class v2 extends BaseApi implements Iv2Api {
             path: `users/${userId}/orders`
         });
     };
+
+    async getSavedMaps() {
+        return await this.#fetch({
+            base: 'ugc/v1/public',
+            path: 'maps/metadata/all'
+        });
+    };
     
     async #fetch({ path, base, options = {}, json = true }: fetchOptionsV2): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
