@@ -361,6 +361,13 @@ class v2 extends BaseApi implements Iv2Api {
             path: 'maps/metadata/all'
         });
     };
+
+    async getMap(shareCode: string) {
+        return await this.#fetch({
+            base: 'ugc/v1/public',
+            path: `maps/sharecodes/${shareCode}`
+        });
+    };
     
     async #fetch({ path, base, options = {}, json = true }: fetchOptionsV2): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
