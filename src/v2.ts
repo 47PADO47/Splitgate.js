@@ -121,13 +121,13 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getReferralData(): Promise<referralData> {
-        const data: referralData = await this.#fetch({ path: `users/${this.user.id}/referral/info`, base: 'social/public' });
+    async getReferralData(userId = this.user.id): Promise<referralData> {
+        const data: referralData = await this.#fetch({ path: `users/${userId}/referral/info`, base: 'social/public' });
         return data ?? {};
     };
 
-    async getReferralSeasonData(seasonName = "Season2"): Promise<referralSeasonData> {
-        const data: referralSeasonData = await this.#fetch({ path: `users/${this.user.id}/referral/data?seasonName=${seasonName}`, base: 'social/public' });
+    async getReferralSeasonData(userId = this.user.id): Promise<referralSeasonData> {
+        const data: referralSeasonData = await this.#fetch({ path: `users/${userId}/referral/data`, base: 'social/public' });
         return data ?? {};
     };
 
@@ -136,8 +136,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getSeasonReward(): Promise<seasonReward> {
-        const data: seasonReward = await this.#fetch({ path: `users/${this.user.id}/seasonreward`, base: 'splitgate/public' });
+    async getSeasonReward(userId = this.user.id): Promise<seasonReward> {
+        const data: seasonReward = await this.#fetch({ path: `users/${userId}/seasonreward`, base: 'splitgate/public' });
         return data ?? {};
     };
 
@@ -172,7 +172,7 @@ class v2 extends BaseApi implements Iv2Api {
     };
 
     async getCurrentSeasonName() {
-        const data = await this.#fetch({ base: 'splitgate/public', path: `seasons/current/name`, options: undefined, json: false });
+        const data = await this.#fetch({ base: 'splitgate/public', path: `seasons/current/name`, json: false });
         return data ?? {};
     };
 
@@ -261,8 +261,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getWallet() {
-        const data = await this.#fetch({ base: 'platform/public', path: `users/${this.user.id}/wallets/SC` });
+    async getWallet(userId = this.user.id) {
+        const data = await this.#fetch({ base: 'platform/public', path: `users/${userId}/wallets/SC` });
         return data ?? {};
     };
 
