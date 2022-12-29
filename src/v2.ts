@@ -368,6 +368,20 @@ class v2 extends BaseApi implements Iv2Api {
             path: `maps/sharecodes/${shareCode}`
         });
     };
+
+    async isValidCreator(creatorCode: string) {
+        const response = await this.fetch(`https://api.nexus.gg/v1/attributions/creators/${creatorCode}`, {
+            headers: {
+                'X-SHARED-SECRET': '4cc97343522a404ba86f1add1681a4e3'
+            }
+        });
+        if (!response.ok) return false;
+
+        const data = await response.text();
+        if (data.toLowerCase() === 'not found') return false;
+
+        return JSON.parse(data);
+    };
     
     async #fetch({ path, base, options = {}, json = true }: fetchOptionsV2): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
