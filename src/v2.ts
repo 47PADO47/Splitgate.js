@@ -340,6 +340,13 @@ class v2 extends BaseApi implements Iv2Api {
             });
         return data ?? {};
     };
+
+    async getTransactions(userId = this.user.id, currency = 'SC') {
+        return await this.#fetch({
+            base: 'platform/public',
+            path: `users/${userId}/wallets/${currency}/transactions`
+        });
+    };
     
     async #fetch({ path, base, options = {}, json = true }: fetchOptionsV2): Promise<any> {
         if (!this.authorized) return this.error("Not authorized");
