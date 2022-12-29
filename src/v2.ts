@@ -1,6 +1,6 @@
 import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./core/Base";
-import { constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
+import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
@@ -35,45 +35,19 @@ class v2 extends BaseApi implements Iv2Api {
         if (this.authorized) return this.error("Already authorized");
         if (!platformToken) return this.error("No platform token provided");
 
-        this.log('Logging in...');
-        const response = await this.fetch(`${this.baseUrl}iam/v3/oauth/platforms/steam/token`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": `Basic MzZkOGEzN2JmZTlhNDEyYWJiMGIzMTc0OTM0NTg5YjU6`,
-                ...this.headers,
-            },
-            body: `platform_token=${platformToken}`,
+        const expiration = await this.#authorize({
+            token: platformToken,
+            type: 'platform'
         });
-        if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
-        
-        const json = await response.json()
-        .catch(() => {
-            return this.error("Failed to parse JSON");
-        });
-        
-        if (json.error) return this.error(json.error_description);
-
         this.#platformToken = platformToken;
-        this.#token = json.access_token;
-        this.#refreshToken = json.refresh_token;
-        this.user = {
-            name: json.display_name,
-            platform: {
-                id: json.platform_id,
-                userId: json.platform_user_id,
-            },
-            id: json.user_id,
-            xuid: json.xuid,
-            bans: json.bans,
-        };
-        this.authorized = true;
         
-        this.log('Logged in');
-        setInterval(() => {
+        setInterval(async () => {
             this.authorized = false;
-            this.#refresh(this.#refreshToken);
-        }, json.expires_in*1000);
+            await this.#authorize({
+                token: this.#refreshToken,
+                type: 'refresh',
+            });
+        }, expiration*100);
         
         return this.user;
     };
@@ -401,19 +375,23 @@ class v2 extends BaseApi implements Iv2Api {
         return data;
     };
 
-    async #refresh(refreshToken = this.#refreshToken) {
-        if (!this.#platformToken) return this.error("User has not previously logged in");
-        if (!refreshToken) return this.error("No refresh token provided");
+    async #authorize({token, type}: authorizationOptions): Promise<number> {
+        if (!token) return this.error("No token provided");
+        if (type == "refresh" && !this.#platformToken) return this.error("User has not previously logged in");
         
-        this.log(`Refreshing token...`);
-        const response = await this.fetch(`${this.baseUrl}iam/v3/oauth/token`, {
+        this.log(`Using ${type} token...`);
+
+        let body = `${type}_token=${token}`;
+        if (type == "refresh") body += `&grant_type=${type}_token`;
+
+        const response = await this.fetch(`${this.baseUrl}iam/v3/oauth${type == "platform" ? '/platforms/steam': ''}/token`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": `Basic MzZkOGEzN2JmZTlhNDEyYWJiMGIzMTc0OTM0NTg5YjU6`,
                 ...this.headers,
             },
-            body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+            body,
         });
         if (response.status !== 200) return this.error(`Server status different from 200 (${response.status} - ${response.statusText})`);
         
@@ -423,12 +401,22 @@ class v2 extends BaseApi implements Iv2Api {
         });
         
         if (json.error) return this.error(json.error_description);
+        this.user = {
+            name: json.display_name,
+            platform: {
+                id: json.platform_id,
+                userId: json.platform_user_id,
+            },
+            id: json.user_id,
+            xuid: json.xuid,
+            bans: json.bans,
+        };
+        this.authorized = true;
         this.#token = json.access_token;
         this.#refreshToken = json.refresh_token;
-        this.authorized = true;
 
-        this.log(`Token refreshed`);
-        return this.#token;
+        this.log(type === "refresh" ? `Token refreshed` : 'Logged in');
+        return json.expires_in || 3600;
     };
 };
 
