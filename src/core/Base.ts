@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { fetch } from 'undici';
 import { urls, headers } from './constants';
 import { BaseApiConstructor, IBaseApi } from '../typings/Base';
 import { Headers } from '../typings/constants';
