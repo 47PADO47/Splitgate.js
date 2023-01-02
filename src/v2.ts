@@ -121,6 +121,13 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
+    async getPlatformUser(platform: platformId, userId = this.user.platform?.id) {
+        return await this.#fetch({
+            path: `platforms/${platform}/users/${userId}`,
+            base: 'iam/v3/public',
+        })
+    };
+
     async getReferralData(userId = this.user.id): Promise<referralData> {
         const data: referralData = await this.#fetch({ path: `users/${userId}/referral/info`, base: 'social/public' });
         return data ?? {};
