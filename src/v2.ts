@@ -1,4 +1,4 @@
-import { HeadersInit, RequestInit } from "node-fetch";
+import { HeadersInit, RequestInit } from "undici";
 import BaseApi from "./core/Base";
 import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, platformId, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, searchQuery, seasonReward, servers, streamStatus, User } from "./typings/v2";
 

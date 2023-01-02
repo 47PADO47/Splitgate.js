@@ -1,4 +1,4 @@
-import { RequestInit } from "node-fetch";
+import { RequestInit } from "undici";
 import BaseApi from "./core/Base";
 import { customizationDataV1, Iv1Api, v1ApiConstructor, v1Data } from "./typings/v1";
 
