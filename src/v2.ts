@@ -202,8 +202,8 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getViews() {
-        const data = await this.#fetch({ base: 'platform/public', path: `views` });
+    async getViews(language = "en") {
+        const data = await this.#fetch({ base: 'platform/public', path: `views?language=${language}` });
         return data ?? {};
     };
 
