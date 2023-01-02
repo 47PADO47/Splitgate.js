@@ -1,4 +1,4 @@
-import { RequestInit } from "node-fetch";
+import { RequestInit } from "undici";
 import { Headers } from "./constants";
 
 interface IBaseApi {
