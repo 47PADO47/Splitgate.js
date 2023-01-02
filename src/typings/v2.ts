@@ -176,6 +176,15 @@ interface drops {
     count?: number
 };
 
+type platformId = 'steam' | 'live' | 'ps5';
+
+type searchQuery = {
+    query: string;
+    by?: 'displayName' | 'username';
+    limit?: string;
+    offset?: string;
+}
+
 export {
     Iv2Api,
     constructorOptionsV2,
@@ -194,5 +203,7 @@ export {
     servers,
     raceTimes,
     legacyProgression,
-    drops
+    drops,
+    platformId,
+    searchQuery,
 }
