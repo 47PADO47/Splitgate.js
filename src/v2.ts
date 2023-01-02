@@ -1,6 +1,6 @@
 import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./core/Base";
-import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, platformId, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
+import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, platformId, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, searchQuery, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
@@ -126,6 +126,13 @@ class v2 extends BaseApi implements Iv2Api {
             path: `platforms/${platform}/users/${userId}`,
             base: 'iam/v3/public',
         })
+    };
+
+    async searchProfile(queryOptions: searchQuery) {
+        return await this.#fetch({
+            path: `users?${new URLSearchParams(queryOptions).toString()}`,
+            base: 'iam/v3/public',
+        });
     };
 
     async getReferralData(userId = this.user.id): Promise<referralData> {
