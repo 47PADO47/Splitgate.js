@@ -1,6 +1,6 @@
 import { HeadersInit, RequestInit } from "node-fetch";
 import BaseApi from "./core/Base";
-import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
+import { authorizationOptions, constructorOptionsV2, drops, fetchOptionsV2, Iv2Api, legacyProgression, lobbyMessage, platformId, Profile, publicProfile, raceTimes, redeemDaily, referralData, referralSeasonData, seasonReward, servers, streamStatus, User } from "./typings/v2";
 
 class v2 extends BaseApi implements Iv2Api {
     #platformToken = "";
@@ -105,9 +105,9 @@ class v2 extends BaseApi implements Iv2Api {
         return data ?? {};
     };
 
-    async getUserProfilesSteam(platformUserIds = [this.user.id]) {
+    async getPlatformUsers(platform: platformId, platformUserIds = [this.user.platform?.id]) {
         const data = await this.#fetch({
-                path: `platforms/steam/users`,
+                path: `platforms/${platform}/users`,
                 base: 'iam/v3/public',
                 options: {
                     body: JSON.stringify({ platformUserIds }),
